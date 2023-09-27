@@ -4,7 +4,28 @@ const sql = require('./models/db');
 const restaurantRouter = require("./routes/restaurant.router");
 const Restaurant = require("./models/restaurant.model");
 const PORT = 5000;
+const db = require("./models/index");
+const role = db.ROLES
+//dev mode
+db.sequelize.sync({fource: true}).then(() => {
+    console.log("Hello World!");
+    initial();
+})
 
+function initial() {
+    role.create({
+        id:1,
+        name: "user"
+    }),
+    role.create({
+        id:2,
+        name: "moderator"
+    }),
+    role.create({
+        id:3,
+        name: "admin"
+    });
+}
 
 //create service
 const app = express();
