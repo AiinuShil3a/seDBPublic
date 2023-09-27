@@ -5,12 +5,12 @@ const restaurantRouter = require("./routes/restaurant.router");
 const Restaurant = require("./models/restaurant.model");
 const PORT = 5000;
 const db = require("./models/index");
-const role = db.ROLES
+const role = db.role
 //dev mode
-db.sequelize.sync({fource: true}).then(() => {
+db.sequelize.sync({force: true}).then(() => {
     console.log("Hello World!");
     initial();
-})
+});
 
 function initial() {
     role.create({
