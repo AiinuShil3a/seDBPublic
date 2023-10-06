@@ -32,7 +32,7 @@ function initial() {
 //create service
 const app = express();
 
-//Use middleware
+//Use middlewares
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({extended : false}));
