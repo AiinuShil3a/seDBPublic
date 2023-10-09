@@ -42,8 +42,9 @@ checkROLES = (req, res, next) => {
             if(!ROLES.includes(req.body.roles[i])){
                 res.status(400).send({ message: "Failed isn't Roles" + req.body.roles[i] });
             }
-        } next();
+        } 
     }
+    next();
 }
 
 const verifySingUp = {

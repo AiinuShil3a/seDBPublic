@@ -29,9 +29,9 @@ exports.singup = (req, res) => {
           });
         });
       } else {
-        user.setRoles([1]).then(() => {
+        user.setRoles([1])
           res.send({ message: "User already Successfully Created" });
-        });
+        
       }
     })
     .catch((err) => {
