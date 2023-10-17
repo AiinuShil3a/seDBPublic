@@ -69,11 +69,33 @@ isUser = (req, res, next) => {
     })
 }
 
+isModeratorAdmin = (req, res, next) => {
+    // SELECT * FROM user WHERE id = req.body.userId
+    User.findByPk(req.userId).then((user) => {
+        // SELECT * FROM role, user, user_roles WHERE  user.id = users_roles.userId and role.id = users_roles.roleId
+        user.getRoles().then(roles => {
+            for (let i = 0; i < roles.length; i++) {
+                if (roles[i].name === "Moderator") {
+                    next();
+                    return;
+                }
+                if (roles[i].name === "admin") {
+                    next();
+                    return;
+                }
+            }
+            res.status(403).send({ message: "Require Moderator Role" });
+            return;
+        });
+    });
+};
+
 const authJWT = {
     verifyToken: verifyToken,
     isModerator: isModerator,
     isUser: isUser,
     isAdmin: isAdmin,
+    isModeratorAdmin: this.isModeratorAdmin,
 }
 
 module.exports = authJWT;

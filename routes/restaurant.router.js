@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Restaurant = require("../controller/restaurant.controller");
+const {authJWT} = require("../middleware");
 
 //create a new Restaurant
 // http://localhost:5000/RestaurantsShil3aiinu
@@ -14,7 +15,7 @@ router.post("/RestaurantShil3aiinu", async (req, res) => {
   }
 });
 
-router.put("/RestaurantShil3aiinu/:id", async (req, res) => {
+router.put("/RestaurantShil3aiinu/:id",[authJWT.verifyToken, authJWT.isAdmin], async (req, res) => {
   try {
     const restaurantId = Number.parseInt(req.params.id);
     const newRestaurant = req.body;
@@ -42,7 +43,7 @@ router.get("/Restaurants", async (req, res) => {
   }
 });
 
-router.get("/Restaurants/:id", async (req, res) => {
+router.get("/Restaurants/:id",[authJWT.verifyToken], async (req, res) => {
   try {
     const restaurantId = Number.parseInt(req.params.id);
 
@@ -57,7 +58,7 @@ router.get("/Restaurants/:id", async (req, res) => {
   }
 });
 
-router.delete("/RestaurantShil3aiinu/:id", async (req, res) => {
+router.delete("/RestaurantShil3aiinu/:id",[authJWT.verifyToken, authJWT.isAdmin], async (req, res) => {
   try {
     const restaurantId = Number.parseInt(req.params.id);
 
