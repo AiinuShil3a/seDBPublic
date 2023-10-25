@@ -1,7 +1,7 @@
 const db = require("../models");
 const config = require("../config/auth.config");
-const User = db.user;
-const Roles = db.role;
+
+const { user: User, role: Roles, refreshToken: REFRESHTOKEN } = db;
 
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
@@ -29,9 +29,8 @@ exports.singup = (req, res) => {
           });
         });
       } else {
-        user.setRoles([1])
-          res.send({ message: "User already Successfully Created" });
-        
+        user.setRoles([1]);
+        res.send({ message: "User already Successfully Created" });
       }
     })
     .catch((err) => {
@@ -42,41 +41,87 @@ exports.singup = (req, res) => {
 //SingInUser
 exports.singIn = (req, res) => {
   User.findOne({
-    where:{
-      username: req.body.username
-    }
-  }).then((user) => {
-    if(!user){
-      return res.status(404)({message:"user not found"})
-    }
-    let passwordIsnot = bcrypt.compareSync(req.body.password, user.password)
-    if(!passwordIsnot){
-      return res.status(401)({
-        accessToken: null,
-        message:"Error password"
-      })
-    }
-    const token = jwt.sign({id:user.id}, config.secret ,{
-                algorithm:"HS256",
-                //allowInsecureKeySize:true,
-                expiresIn:86400, //24hours 606024
-            });
-    
-    
-    let authorities = [];
-    user.getRoles().then((roles) => {
-      for (let i = 0; i < roles.length; i++) {
-        authorities.push("ROLE " + roles[i].name.toUpperCase())
-      }
-      res.status(200).send({
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        roles: authorities,
-        accessToken: token
-      })
-    })
-  }).catch(err =>{
-    res.status(500).send({message: err.message})
+    where: {
+      username: req.body.username,
+    },
   })
-}
+    .then(async (user) => {
+      if (!user) {
+        return res.status(404)({ message: "user not found" });
+      }
+      let passwordIsnot = bcrypt.compareSync(req.body.password, user.password);
+      if (!passwordIsnot) {
+        return res.status(401)({
+          accessToken: null,
+          message: "Error password",
+        });
+      }
+      const token = jwt.sign({ id: user.id }, config.secret, {
+        algorithm: "HS256",
+        //allowInsecureKeySize:true,
+        expiresIn: config.jwtExpiration,
+      });
+      const refresh = await REFRESHTOKEN.createToken(user);
+
+      let authorities = [];
+      user.getRoles().then((roles) => {
+        for (let i = 0; i < roles.length; i++) {
+          authorities.push("ROLE " + roles[i].name.toUpperCase());
+        }
+        res.status(200).send({
+          id: user.id,
+          username: user.username,
+          email: user.email,
+          roles: authorities,
+          accessToken: token,
+          refreshToken: refresh,
+        });
+      });
+    })
+    .catch((err) => {
+      res.status(500).send({ message: err.message });
+    });
+
+ 
+};
+
+exports.refreshToken = async (req, res) => {
+  const { refreshToken: requestToken } = req.body;
+  if (requestToken == null) {
+    return res.status(403).json({ message: "Refresh Token is required!!" });
+  }
+  try {
+    let refreshToken = await RefreshToken.findOne({
+      where: {
+        token: requestToken,
+      },
+    });
+    if (!refreshToken) {
+      res.status(403).json({ message: "Refresh Token is not in database!" });
+      return;
+    }
+    if (RefreshToken.verifyExpiration(refreshToken)) {
+      RefreshToken.destory({ where: { id: refreshToken.id } });
+      res
+        .status(403)
+        .json({
+          message:
+            "Refresh Token was expired. Please make a new signin request",
+        });
+      return;
+    }
+    const user = await refreshToken.getUser();
+    let newAccassToken = jwt.sign({ id: user.id }, config.secret, {
+      algorithm: "HS256",
+      //allowInsecureKeySize:true,
+      expiresIn: config.jwtExpiration,
+    });
+
+    return res.status(200).json({
+      accessToken: newAccassToken,
+      refreshToken: refreshToken.token,
+    });
+  } catch (error) {
+    res.status(500).send({ message: err });
+  }
+};

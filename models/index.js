@@ -24,6 +24,8 @@ db.sequelize = sequelize,
 
 db.user = require("./user.model")(sequelize,Sequelize);
 db.role = require("./role.model")(sequelize,Sequelize);
+db.refreshToken = require("./refreshToken.model")(sequelize,Sequelize);
+
 //1
 db.role.belongsToMany(db.user, {
     through: "user_roles"
@@ -31,6 +33,16 @@ db.role.belongsToMany(db.user, {
 //2
 db.user.belongsToMany(db.role, {
     through: "user_roles"
+})
+
+db.refreshToken.belongsTo(db.user, {
+    foreignKey: "userId",
+    targetkey:"id"
+})
+
+db.user.hasOne(db.refreshToken, {
+    foreignKey: "userId",
+    targetkey:"id"
 })
 
 db.ROLES = ["user","admin","moderator"]

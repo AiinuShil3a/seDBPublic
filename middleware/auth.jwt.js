@@ -4,6 +4,14 @@ const jwt = require("jsonwebtoken");
 const config = require("../config/auth.config.js");
 const db = require("../models");
 const User = db.user;
+const{TokenExpiretionError} = jwt
+
+const catesError = (err , res) => {
+    if(err instanceof TokenExpiretionError){
+        return res.status(401).send({ message: "Unauthorized Access Token"});
+    }
+    return res.status(401).send({ message: "Unauthorized"});
+}
 
 verifyToken = (req, res , next) => {
     let token = req.header['x-access-token'];
@@ -12,12 +20,13 @@ verifyToken = (req, res , next) => {
     }
     jwt.verify(token, config.secret, (err, decode) => {
         if(err) {
-            return res.status(401).send({ message: "Unauthorized"});
+            return catesError(err,res);
         }
         req.userId = decode.id;
         next();
     })
 }
+
 isAdmin = (req, res, next) => {
     // select * from users where id = req.userId
     User.findByPk(req.userId).then(user => {

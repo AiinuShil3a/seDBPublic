@@ -16,4 +16,8 @@ module.exports = function(app){
         "/api/auth/singin",
         controller.singIn
     )
+    app.post(
+        "/api/auth/refrechToken",
+        controller.refreshToken
+    )
 }
