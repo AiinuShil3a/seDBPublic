@@ -31,12 +31,12 @@ const Restaurant = sequelize.define("restaurant",{
         defaultValue: DataTypes.NOW
     }
 });
-/* 
-// create database by sequelize
-Restaurant.sync({force:false}).then(() => {
-    console.log("Table is Create");
-}).catch((xerror) => {
-    console.error("Error! Not create table");
-})
- */
+
+// // create database by sequelize
+// Restaurant.sync({force:false}).then(() => {
+//     console.log("Table is Create");
+// }).catch((xerror) => {
+//     console.error("Error! Not create table");
+// })
+
 module.exports = Restaurant;
