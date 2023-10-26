@@ -5,7 +5,7 @@ const {authJWT} = require("../middleware");
 
 //create a new Restaurant
 // http://localhost:5000/RestaurantsShil3aiinu
-router.post("/RestaurantShil3aiinu", async (req, res) => {
+router.post("/RestaurantShil3aiinu",[authJWT.verifyToken, authJWT.isAdmin], async (req, res) => {
   try {
     const newRestaurant = req.body;
     const createRestaurant = await Restaurant.createRestaurant(newRestaurant);
