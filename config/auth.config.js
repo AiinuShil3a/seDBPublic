@@ -4,6 +4,6 @@ module.exports = {
     // jwtRefreshExpiration:86400,
     
     //test jwtRefreshExpiration
-    jwtExpiration:60, // 1minute
-    jwtRefreshExpiration:120, // 2minute
+    jwtExpiration:1000, // 1minute
+    jwtRefreshExpiration:1200, // 2minute
 }

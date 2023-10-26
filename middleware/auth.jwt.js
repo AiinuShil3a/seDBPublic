@@ -4,17 +4,17 @@ const jwt = require("jsonwebtoken");
 const config = require("../config/auth.config.js");
 const db = require("../models");
 const User = db.user;
-const{TokenExpiretionError} = jwt
+const{TokenExpiredError} = jwt
 
 const catesError = (err , res) => {
-    if(err instanceof TokenExpiretionError){
+    if(err instanceof TokenExpiredError){
         return res.status(401).send({ message: "Unauthorized Access Token"});
     }
     return res.status(401).send({ message: "Unauthorized"});
 }
 
 verifyToken = (req, res , next) => {
-    let token = req.header['x-access-token'];
+    let token = req.headers['x-access-token'];
     if (!token) {
         return res.status(403).send({ message: "Invalid Token"});
     }
